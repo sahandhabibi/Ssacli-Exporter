@@ -5,6 +5,13 @@ This exporter for the Prometheus monitoring system calls into the ssacli utility
 ssacli ctrl slot=0 physicaldrive all show detail
 ```
 
+# Try it
+
+```
+ssacli_exporter -Port 9060
+```
+default port 9109 - /metrics
+
 Example metrics output:
 
 ```
