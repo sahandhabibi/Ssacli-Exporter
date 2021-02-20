@@ -1,8 +1,9 @@
 # ssacli-exporter For HP RAID Controllers
 This exporter for the Prometheus monitoring system calls into the ssacli utility to provide metrics for errors reported by HP RAID hardware. Under the hood, it invokes the following command when being scraped:
 
+```
 ssacli ctrl slot=0 physicaldrive all show detail
-
+```
 
 Example metrics output:
 
@@ -60,5 +61,6 @@ apt-get update && apt-get install ssacli
 More Info 
 
 https://downloads.linux.hpe.com/SDR/project/mcp/
+
 https://downloads.linux.hpe.com/SDR/keys.html
 https://support.hpe.com/hpsc/swd/public/detail?swItemId=MTX-f8f30da26d6749499adec36f8b#tab3
