@@ -10,6 +10,11 @@ ssacli ctrl slot=0 physicaldrive all show detail
 ```
 ssacli_exporter -Port 9060 (default port 9109 - /metrics )
 ```
+# Grafana Dashboard 
+
+![plot](./Dashboard.png)
+
+
 
 Example metrics output:
 
