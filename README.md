@@ -1,7 +1,4 @@
-# ssacli-exporter
-ssacli Exporter For Prometheus
-
-# Prometheus Exporter For HP RAID Controllers
+# ssacli-exporter For HP RAID Controllers
 This exporter for the Prometheus monitoring system calls into the ssacli utility to provide metrics for errors reported by HP RAID hardware. Under the hood, it invokes the following command when being scraped:
 
 ssacli ctrl slot=0 physicaldrive all show detail
