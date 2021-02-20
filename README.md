@@ -8,9 +8,8 @@ ssacli ctrl slot=0 physicaldrive all show detail
 # Try it
 
 ```
-ssacli_exporter -Port 9060
+ssacli_exporter -Port 9060 (default port 9109 - /metrics )
 ```
-default port 9109 - /metrics
 
 Example metrics output:
 
