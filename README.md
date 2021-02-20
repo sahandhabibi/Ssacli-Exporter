@@ -9,6 +9,7 @@ ssacli ctrl slot=0 physicaldrive all show detail
 
 Example metrics output:
 
+```
 # HELP disk_current_temperature Disk Current Temperature
 # TYPE disk_current_temperature gauge
 disk_current_temperature{physicaldrive="box 3 bay 1 type SAS"} 46
@@ -27,3 +28,4 @@ disk_status{physicaldrive="box 3 bay 1 type none"} 1
 disk_status{physicaldrive="box 3 bay 2 type SAS"} 1
 disk_status{physicaldrive="box 3 bay 3 type SAS"} 1
 disk_status{physicaldrive="box 3 bay 4 type SAS"} 1
+```
