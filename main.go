@@ -142,20 +142,23 @@ func parse() {
 	}
 }
 
-func recordMetrics() {
+func recordMetrics(interval time.Duration) {
 	go func() {
 		for {
+		    log.Println("Reading new metrics..")
 			parse()
-			time.Sleep(2 * time.Second)
+			time.Sleep(interval)
 		}
 	}()
 }
 
 func runcmd(cmd string, shell bool) []byte {
+    log.Printf("Executing command : %v", cmd)
+
 	if shell {
-		out, err := exec.Command("bash", "-c", cmd).Output()
+		out, err := exec.Command(cmd).Output()
 		if err != nil {
-			log.Fatal(err)
+		    log.Println("Error while executing the command: ", err)
 			panic("some error found")
 		}
 		return out
@@ -169,8 +172,14 @@ func runcmd(cmd string, shell bool) []byte {
 
 func main() {
 	Port := flag.Int("Port", 9109, "Port Number to listen")
-	flag.Parse()
-	recordMetrics()
+	ProbingRate := flag.String("ProbingRate", "1m", "The rate in which the ssacli tool is probed for new values")
+    flag.Parse()
+
+    interval, _ := time.ParseDuration(*ProbingRate)
+
+    log.Printf("Starting exporter on port '%d' with probing interval '%s'", *Port, *ProbingRate)
+
+	recordMetrics(interval)
 	var port = ":" + strconv.Itoa(*Port)
 	http.Handle("/metrics", promhttp.Handler())
 	log.Fatal(http.ListenAndServe(port, nil))
