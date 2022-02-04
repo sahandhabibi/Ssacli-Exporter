@@ -156,7 +156,7 @@ func runcmd(cmd string, shell bool) []byte {
     log.Printf("Executing command : %v", cmd)
 
 	if shell {
-		out, err := exec.Command(cmd).Output()
+		out, err := exec.Command("bash", "-c", cmd).Output()
 		if err != nil {
 		    log.Println("Error while executing the command: ", err)
 			panic("some error found")
