@@ -83,7 +83,7 @@ func parse() {
 	box_current := "1"
 	disktype_current := "none"
 	var MetricValue float64 = 0
-	output := string(runcmd("ssacli ctrl slot=0 physicaldrive all show detail", true))
+	output := string(runcmd("ssacli ctrl first physicaldrive all show detail", true))
 
 	scanner := bufio.NewScanner(strings.NewReader(output))
 	for scanner.Scan() {
@@ -145,7 +145,7 @@ func parse() {
 func recordMetrics(interval time.Duration) {
 	go func() {
 		for {
-		    log.Println("Reading new metrics..")
+			log.Println("Reading new metrics..")
 			parse()
 			time.Sleep(interval)
 		}
@@ -153,12 +153,12 @@ func recordMetrics(interval time.Duration) {
 }
 
 func runcmd(cmd string, shell bool) []byte {
-    log.Printf("Executing command : %v", cmd)
+	log.Printf("Executing command : %v", cmd)
 
 	if shell {
 		out, err := exec.Command("bash", "-c", cmd).Output()
 		if err != nil {
-		    log.Println("Error while executing the command: ", err)
+			log.Println("Error while executing the command: ", err)
 			panic("some error found")
 		}
 		return out
@@ -173,11 +173,11 @@ func runcmd(cmd string, shell bool) []byte {
 func main() {
 	Port := flag.Int("Port", 9109, "Port Number to listen")
 	ProbingRate := flag.String("ProbingRate", "1m", "The rate in which the ssacli tool is probed for new values")
-    flag.Parse()
+	flag.Parse()
 
-    interval, _ := time.ParseDuration(*ProbingRate)
+	interval, _ := time.ParseDuration(*ProbingRate)
 
-    log.Printf("Starting exporter on port '%d' with probing interval '%s'", *Port, *ProbingRate)
+	log.Printf("Starting exporter on port '%d' with probing interval '%s'", *Port, *ProbingRate)
 
 	recordMetrics(interval)
 	var port = ":" + strconv.Itoa(*Port)
