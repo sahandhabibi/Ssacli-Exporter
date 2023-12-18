@@ -78,14 +78,18 @@ func init() {
 	prometheus.MustRegister(disk_estimated_life_remaining)
 }
 
-func parse() {
+func callCmdAndParse() {
+	output := string(runcmd("ssacli ctrl first physicaldrive all show detail", true))
+	parse(output)
+}
+
+func parse(toParse string) {
 	bay_current := "1"
 	box_current := "1"
 	disktype_current := "none"
 	var MetricValue float64 = 0
-	output := string(runcmd("ssacli ctrl first physicaldrive all show detail", true))
 
-	scanner := bufio.NewScanner(strings.NewReader(output))
+	scanner := bufio.NewScanner(strings.NewReader(toParse))
 	for scanner.Scan() {
 
 		bay := bayRG.FindStringSubmatch(scanner.Text())
@@ -121,6 +125,8 @@ func parse() {
 			name := "box " + box_current + " bay " + bay_current + " type " + disktype_current
 			if status[1] == "OK" {
 				MetricValue = 1
+			} else {
+				MetricValue = 0
 			}
 			disk_status.With(prometheus.Labels{"physicaldrive": name}).Set(MetricValue)
 		}
@@ -146,7 +152,7 @@ func recordMetrics(interval time.Duration) {
 	go func() {
 		for {
 			log.Println("Reading new metrics..")
-			parse()
+			callCmdAndParse()
 			time.Sleep(interval)
 		}
 	}()
