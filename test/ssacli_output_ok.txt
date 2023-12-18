@@ -30,3 +30,59 @@ HPE Smart Array P816i-a SR Gen10 in Slot 0 (Embedded)
          Unrestricted Sanitize Supported: False
          Shingled Magnetic Recording Support: None
          Drive Unique ID: 00000000000000000000000000000000
+
+      physicaldrive 3I:6:2
+         Port: 3I
+         Box: 6
+         Bay: 2
+         Status: OK
+         Drive Type: Data Drive
+         Interface Type: SAS
+         Size: 300 GB
+         Drive exposed to OS: False
+         Logical/Physical Block Size: 512/512
+         Rotational Speed: 10500
+         Firmware Revision: HPD3
+         Serial Number: 00000000
+         WWID: 0000000000000000
+         Model: HP      EG0300JEHLV
+         Current Temperature (C): 55
+         Maximum Temperature (C): 58
+         PHY Count: 2
+         PHY Transfer Rate: 12.0Gbps, Unknown
+         Drive Authentication Status: OK
+         Carrier Application Version: 11
+         Carrier Bootloader Version: 6
+         Sanitize Erase Supported: True
+         Sanitize Estimated Max Erase Time: 0 hour(s), 42 minute(s)
+         Unrestricted Sanitize Supported: False
+         Shingled Magnetic Recording Support: None
+         Drive Unique ID: 00000000000000000000000000000000
+
+      physicaldrive 3I:6:3
+         Port: 3I
+         Box: 6
+         Bay: 3
+         Status: OK
+         Drive Type: Data Drive
+         Interface Type: SAS
+         Size: 300 GB
+         Drive exposed to OS: False
+         Logical/Physical Block Size: 512/512
+         Rotational Speed: 10500
+         Firmware Revision: HPD3
+         Serial Number: 00000000
+         WWID: 0000000000000000
+         Model: HP      EG0300JEHLV
+         Current Temperature (C): 55
+         Maximum Temperature (C): 58
+         PHY Count: 2
+         PHY Transfer Rate: 12.0Gbps, Unknown
+         Drive Authentication Status: OK
+         Carrier Application Version: 11
+         Carrier Bootloader Version: 6
+         Sanitize Erase Supported: True
+         Sanitize Estimated Max Erase Time: 0 hour(s), 42 minute(s)
+         Unrestricted Sanitize Supported: False
+         Shingled Magnetic Recording Support: None
+         Drive Unique ID: 00000000000000000000000000000000

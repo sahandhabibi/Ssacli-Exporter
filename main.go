@@ -58,6 +58,7 @@ var (
 		},
 		[]string{"physicaldrive"},
 	)
+	physicaldriveRG *regexp.Regexp = regexp.MustCompile("^\\s*physicaldrive (\\S*)$")
 	usageRG  *regexp.Regexp = regexp.MustCompile("^.*: (.*)%")
 	dayRG    *regexp.Regexp = regexp.MustCompile("^.*date: (.*) ")
 	bayRG    *regexp.Regexp = regexp.MustCompile("^.*Bay: (.*)")
@@ -83,15 +84,27 @@ func callCmdAndParse() {
 	parse(output)
 }
 
+type valPublisher func(labels prometheus.Labels)
+type currentDriveVals struct {
+	bay string
+	box string
+	disktype string
+
+	valPublishers []valPublisher
+}
+
 func parse(toParse string) {
-	bay_current := "1"
-	box_current := "1"
-	disktype_current := "none"
+	var current = currentDriveVals{ }
+	//bay_current := ""
+	//box_current := ""
+	//disktype_current := ""
+
 	var MetricValue float64 = 0
 
 	scanner := bufio.NewScanner(strings.NewReader(toParse))
 	for scanner.Scan() {
 
+		newDrive := physicaldriveRG.MatchString(scanner.Text())
 		bay := bayRG.FindStringSubmatch(scanner.Text())
 		box := boxRG.FindStringSubmatch(scanner.Text())
 		usage := usageRG.FindStringSubmatch(scanner.Text())
@@ -102,48 +115,78 @@ func parse(toParse string) {
 		mtemp := mtempRG.FindStringSubmatch(scanner.Text())
 		power := powerRG.FindStringSubmatch(scanner.Text())
 
+		if newDrive {
+			publishValues(current)
+			current = currentDriveVals{}
+		}
 		if len(bay) != 0 {
-			bay_current = bay[1]
+			//bay_current = bay[1]
+			current.bay = bay[1]
 		}
 		if len(box) != 0 {
-			box_current = box[1]
+			//box_current = box[1]
+			current.box = box[1]
 		}
 		if len(disktype) != 0 {
-			disktype_current = disktype[1]
+			current.disktype = disktype[1]
 		}
 		if len(usage) != 0 {
-			name := "box " + box_current + " bay " + bay_current + " type " + disktype_current
 			MetricValue, _ := strconv.ParseFloat(strings.TrimSpace(usage[1]), 64)
-			disk_usage_remaining.With(prometheus.Labels{"physicaldrive": name}).Set(MetricValue)
+			current.valPublishers = append(current.valPublishers, func(labels prometheus.Labels) {
+				disk_usage_remaining.With(labels).Set(MetricValue)
+			})
 		}
 		if len(day) != 0 {
-			name := "box " + box_current + " bay " + bay_current + " type " + disktype_current
 			MetricValue, _ := strconv.ParseFloat(strings.TrimSpace(day[1]), 64)
-			disk_estimated_life_remaining.With(prometheus.Labels{"physicaldrive": name}).Set(MetricValue)
+			current.valPublishers = append(current.valPublishers, func(labels prometheus.Labels) {
+				disk_estimated_life_remaining.With(labels).Set(MetricValue)
+			})
 		}
 		if len(status) != 0 {
-			name := "box " + box_current + " bay " + bay_current + " type " + disktype_current
 			if status[1] == "OK" {
 				MetricValue = 1
 			} else {
 				MetricValue = 0
 			}
-			disk_status.With(prometheus.Labels{"physicaldrive": name}).Set(MetricValue)
+			current.valPublishers = append(current.valPublishers, func(labels prometheus.Labels) {
+				disk_status.With(labels).Set(MetricValue)
+			})
 		}
 		if len(ctmep) != 0 {
-			name := "box " + box_current + " bay " + bay_current + " type " + disktype_current
 			MetricValue, _ := strconv.ParseFloat(strings.TrimSpace(ctmep[1]), 64)
-			disk_current_temperature.With(prometheus.Labels{"physicaldrive": name}).Set(MetricValue)
+			current.valPublishers = append(current.valPublishers, func(labels prometheus.Labels) {
+				disk_current_temperature.With(labels).Set(MetricValue)
+			})
 		}
 		if len(mtemp) != 0 {
-			name := "box " + box_current + " bay " + bay_current + " type " + disktype_current
 			MetricValue, _ := strconv.ParseFloat(strings.TrimSpace(mtemp[1]), 64)
-			disk_maximum_temperature.With(prometheus.Labels{"physicaldrive": name}).Set(MetricValue)
+			current.valPublishers = append(current.valPublishers, func(labels prometheus.Labels) {
+				disk_maximum_temperature.With(labels).Set(MetricValue)
+			})
 		}
 		if len(power) != 0 {
-			name := "box " + box_current + " bay " + bay_current + " type " + disktype_current
 			MetricValue, _ := strconv.ParseFloat(strings.TrimSpace(power[1]), 64)
-			disk_power_on_hours.With(prometheus.Labels{"physicaldrive": name}).Set(MetricValue)
+			current.valPublishers = append(current.valPublishers, func(labels prometheus.Labels) {
+				disk_power_on_hours.With(labels).Set(MetricValue)
+			})
+		}
+	}
+	publishValues(current)
+}
+
+func publishValues(current currentDriveVals) {
+	if len(current.bay) > 0 && len(current.box) > 0 {
+		var disktype string
+		if len(current.disktype) > 0 {
+			disktype = current.disktype
+		} else {
+			disktype = "none"
+		}
+
+		name := "box " + current.box + " bay " + current.bay + " type " + disktype
+		labels := prometheus.Labels{"physicaldrive": name}
+		for _, setter := range current.valPublishers {
+			setter(labels)
 		}
 	}
 }

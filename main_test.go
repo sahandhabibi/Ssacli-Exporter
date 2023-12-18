@@ -18,11 +18,11 @@ func TestDiskStatus_Successful(t *testing.T) {
 	metricsChan := make(chan prometheus.Metric, 100)
 	disk_status.Collect(metricsChan)
 
-	if len(metricsChan) != 1 {
+	if len(metricsChan) != 3 {
 		t.Fatalf(`Expected 3 metrics, but collected %d`, len(metricsChan))
 	}
 
-	assertValue(t, disk_status, 1.0)
+	assertValue(t, disk_status, "box 6 bay 1 type SAS", 1.0)
 }
 
 func TestDiskStatus_Rebuilding(t *testing.T) {
@@ -33,20 +33,20 @@ func TestDiskStatus_Rebuilding(t *testing.T) {
 	parse(string(testOutput))
 
 	// then
-	assertValue(t, disk_status, 0.0)
+	assertValue(t, disk_status, "box 6 bay 2 type SAS", 0.0)
 }
 
-func assertValue(t *testing.T, gaugeVec *prometheus.GaugeVec, expectedVal float64) {
-	gaugeVal, gaugeName := extractValue(gaugeVec)
+func assertValue(t *testing.T, gaugeVec *prometheus.GaugeVec, name string, expectedVal float64) {
+	gaugeVal, gaugeName := extractValue(gaugeVec, name)
 	if gaugeVal != expectedVal {
 		t.Fatalf(`Expected %s to be %f, but was %f`, gaugeName, expectedVal, gaugeVal)
 	}
 }
 
 
-func extractValue(gauge *prometheus.GaugeVec) (float64, string) {
+func extractValue(gauge *prometheus.GaugeVec, name string) (float64, string) {
 	metricsChan := make(chan prometheus.Metric, 1)
-	gauge.Collect(metricsChan)
+	gauge.With(prometheus.Labels{"physicaldrive": name}).Collect(metricsChan)
 	metric := <-metricsChan
 	metricDto := io_prometheus_client.Metric{}
 	metric.Write(&metricDto)
